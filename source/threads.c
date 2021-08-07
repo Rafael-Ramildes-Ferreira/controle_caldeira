@@ -178,8 +178,8 @@ void controla_nivel()
 		u = le_sensor(&No) + kp*nivel_erro - le_atuador(&Na);
 		
 		/*  Envia mensagem  */
-		if(nivel_erro<0) {
-			aciona_atuador(&Nf,-nivel_erro);
+		if(u<0) {
+			aciona_atuador(&Nf,-u);
 			aciona_atuador(&Ni,0);
 		} else {
 			aciona_atuador(&Ni,u);
