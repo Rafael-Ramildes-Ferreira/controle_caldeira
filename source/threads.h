@@ -9,3 +9,5 @@ void monitora_temperatura();
 void controla_temperatura();
 
 void controla_nivel();
+
+void le_teclado();

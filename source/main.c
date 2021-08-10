@@ -12,7 +12,7 @@
 
 
 /*  Variáveis da pthreads  */
-pthread_t thread1,thread2,thread3,thread4;
+pthread_t thread1,thread2,thread3,thread4,thread5;
 
 	
 /*  Dados  */
@@ -41,12 +41,14 @@ int main(int argc, char *argv[])
 	pthread_create(&thread2,NULL,(void *) controla_nivel,NULL);
 	pthread_create(&thread3,NULL,(void *) imprime_dados,(void *) file);
 	pthread_create(&thread4,NULL,(void *) monitora_temperatura,NULL);
+	pthread_create(&thread5,NULL,(void *) le_teclado,NULL);
 
 
 	pthread_join(thread1,NULL);
 	pthread_join(thread2,NULL);
 	pthread_join(thread3,NULL);
 	pthread_join(thread4,NULL);
+	pthread_join(thread5,NULL);
 	
 	fclose(file);
 

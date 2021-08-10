@@ -104,6 +104,23 @@ void monitora_temperatura()
 }
 
 
+/*-----------  Sequências para leitura de teclado  ----------*/
+void le_teclado()
+{
+	struct timespec time_init,time_now;
+	clock_gettime(CLOCK_MONOTONIC,&time_init);
+	clock_gettime(CLOCK_MONOTONIC,&time_now);
+	
+
+	while(time_now.tv_sec - time_init.tv_sec < 3600){
+		interpreta_escrita(&Tref, &Href);
+				
+		
+		clock_gettime(CLOCK_MONOTONIC,&time_now);
+	}
+}
+
+
 /*-----------  Sequências de controle  ----------*/
 void controla_temperatura()
 {

@@ -9,7 +9,8 @@ OBJ  = $(subst source,obj,$(C_SOURCE:.c=.o))
 CC = gcc
 
 flags = \
--lpthread
+-lpthread \
+-lm
 
 
 all: $(nome)
