@@ -8,4 +8,6 @@ void print_warning(int valor);
 
 void dont_print_warning();
 
-int interpreta_escrita(double *T, double *H);
+void finalizar_programa();
+
+int interpreta_escrita(double *v[]);

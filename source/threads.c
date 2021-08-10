@@ -6,10 +6,12 @@
 #include "instrumentacao.h"
 #include "display.h"
 
+#define tempo_total 3600
+
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em nano)
-#define executa_nano(intervalo) for(int index = 0;index<3600/(intervalo*1e-9);index++)
+#define executa_nano(intervalo) for(int index = 0;index<tempo_total/(intervalo*1e-9);index++)
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em segundos)
-#define executa_sec(index,intervalo) for(int index = 0;index<3600/intervalo;index++)
+#define executa_sec(index,intervalo) for(int index = 0;index<tempo_total/intervalo;index++)
 
 
 /*  infos  */
@@ -74,6 +76,8 @@ void imprime_dados(FILE *file)
 		/*  Ajeita o Timer  */
 		time.tv_sec += intervalo;
 	}
+
+	finalizar_programa();
 }
 
 void monitora_temperatura()
@@ -110,10 +114,10 @@ void le_teclado()
 	struct timespec time_init,time_now;
 	clock_gettime(CLOCK_MONOTONIC,&time_init);
 	clock_gettime(CLOCK_MONOTONIC,&time_now);
-	
 
-	while(time_now.tv_sec - time_init.tv_sec < 3600){
-		interpreta_escrita(&Tref, &Href);
+
+	while(time_now.tv_sec - time_init.tv_sec < tempo_total){
+		interpreta_escrita((double *[]) {&Tref, &Href});
 				
 		
 		clock_gettime(CLOCK_MONOTONIC,&time_now);

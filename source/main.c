@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 	pthread_join(thread4,NULL);
 	pthread_join(thread5,NULL);
 	
+	printf("%s","\033[?25h");	// Cursor visível
 	fclose(file);
 
 }

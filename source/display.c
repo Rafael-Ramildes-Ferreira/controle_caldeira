@@ -5,11 +5,14 @@
 #include <pthread.h>
 #include "instrumentacao.h"
 
+#define false 0
+#define true  1
 
 #define ESC "\033"
 
 pthread_mutex_t mutex_scr = PTHREAD_MUTEX_INITIALIZER;
 
+int finalizar = false;
 
 /*-----------  Funções de impressão de saída  ----------*/
 void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int index)
@@ -69,6 +72,7 @@ void inicializa_interface(struct atuador *lista1[],int lenght1,struct sensor *li
 	pthread_mutex_unlock(&mutex_scr);	
 }
 
+/*---------- Funções de alarme ----------*/
 void print_warning(int valor)
 {
 	pthread_mutex_lock(&mutex_scr);
@@ -95,205 +99,205 @@ void dont_print_warning()
 	pthread_mutex_unlock(&mutex_scr);
 }
 
-void interpreta_texto(char input)
+/*---------- Finalização do programa ----------*/
+void finalizar_programa()
 {
 	pthread_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[4G");	// Vai para coluna 4
-	printf("%s", ESC "[0K");	// Limpa a linha
-	printf("%c", input);
+	printf("\nPressione ENTER para finalizar . . .\n");
 	pthread_mutex_unlock(&mutex_scr);
-}
-
-double interpreta_numero(char input,int index,double val)
-{
-	pthread_mutex_lock(&mutex_scr);
-	printf("%s[%dG", ESC, 6 + index);	// Vai para coluna 4
-	printf("%s", ESC "[0K");		// Limpa a linha dali pra frente
-	printf("%c", input);
-	pthread_mutex_unlock(&mutex_scr);
-
-	return 10*val + input - 48;		// Converte de char pra int e faz ser o número menos significativo de val
 	
-}
-
-void comando_invalido()
-{
-	pthread_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[4G");
-	printf("%s", ESC "[?25l");	// Cursor invisível
-	printf("%s", ESC "[38;5;196m");	// Põe em vermelho
-	printf("Comando invalido!!");
-	printf("%s", ESC "[0m");	// Reseta estilo da escrita
-	printf("%s", ESC "[?25h");
-	pthread_mutex_unlock(&mutex_scr);
-
-	delay(1500);
-
-	pthread_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[4G");	// Vai para coluna 4
-	printf("%s", ESC "[0K");	// Limpa a linha
-	pthread_mutex_unlock(&mutex_scr);
+	finalizar = true;
 }
 
 
-/*-----------  Funções de interpretação de entrada  ----------*/
-void interpreta_escrita(double *T, double *H)
+
+/*---------- Função de interpretação de entrada ----------*/
+void interpreta_escrita(double *v[])
 {
 	static int index;
 	static double val;
 
 	static int index_ponto;
-	static int var;		// 1 -> T; 2 -> H
+	static int var;		// 0 -> T; 1 -> H
+	
 
+	/*  Funções auxiliares  */
+	// -1 -> resetar; 0 -> T; e 1 -> H
+	void escolhe_desativa_variavel(int command)
+	{
+		index_ponto = -1;
+		index = 0;
+		val = 0;
+		var = command;
+	}
+
+	void limpa_linha_comando()
+	{
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s", ESC "[4G");		// Move o cursor para coluna 4
+		printf("%s", ESC "[0K");		// apaga dala pra frente
+		pthread_mutex_unlock(&mutex_scr);
+
+		escolhe_desativa_variavel(-1);	//  Reseta completamente
+	}
+
+	void backspace()
+	{
+		index -= 1;
+
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s[%dG", ESC, 6 + index);	// Move o cursor para trás
+		printf("%s", ESC "[0K");		// apaga dala pra frente
+		pthread_mutex_unlock(&mutex_scr);
+	}
+
+	void comando_invalido()
+	{
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s", ESC "[4G");
+		printf("%s", ESC "[?25l");	// Cursor invisível
+		printf("%s", ESC "[38;5;196m");	// Põe em vermelho
+		printf("Comando invalido!!");
+		printf("%s", ESC "[0m");	// Reseta estilo da escrita
+		printf("%s", ESC "[?25h");	// Cursor visível
+		pthread_mutex_unlock(&mutex_scr);
+
+		delay(1500);
+
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s", ESC "[0G");	// Vai para coluna 0
+		printf("%s", ESC "[0K");	// Limpa a linha
+		printf("==>");			
+		pthread_mutex_unlock(&mutex_scr);
+
+		escolhe_desativa_variavel(-1);	//  Reseta completamente
+	}
+
+	void interpreta_texto(char input)
+	{
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s", ESC "[4G");	// Vai para coluna 4
+		printf("%s", ESC "[0K");	// Limpa a linha
+		printf("%c", input);
+		pthread_mutex_unlock(&mutex_scr);
+	}
+
+	double interpreta_numero(char input)
+	{
+		pthread_mutex_lock(&mutex_scr);
+		printf("%s[%dG", ESC, 6 + index);	// Vai para coluna 4
+		printf("%s", ESC "[0K");		// Limpa a linha dali pra frente
+		printf("%c", input);
+		pthread_mutex_unlock(&mutex_scr);
+
+		index++;
+		
+		return 10*val + input - 48;		// Converte de char pra int e faz ser o número menos significativo de val
+	}
+
+	/*  Controla a leitura  */
 	char rec = getch();
 	switch(rec){
 		/*--------- Definem a variável ----------*/
 		case 't':{
-			interpreta_texto(rec-32);  // Em maiúsculo
-
-			/*  Reseta parcialmente e define a variavel  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 1;
+			interpreta_texto(rec-32);	// Em maiúsculo
+			escolhe_desativa_variavel(0);	//  Reseta parcialmente e define a variavel
 		} break;
 		case 'T':{
 			interpreta_texto(rec);
-
-			/*  Reseta parcialmente e define a variavel  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 1;
+			escolhe_desativa_variavel(0);	//  Reseta parcialmente e define a variavel
 		} break;
 		case 'h':{
-			interpreta_texto(rec-32);  // Em maiúsculo
-
-			/*  Reseta parcialmente e define a variavel  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 2;
+			interpreta_texto(rec-32);	// Em maiúsculo
+			escolhe_desativa_variavel(1);	//  Reseta parcialmente e define a variavel
 		} break;
 		case 'H':{
 			interpreta_texto(rec);
-
-			/*  Reseta parcialmente e define a variavel  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 2;
+			escolhe_desativa_variavel(1);	//  Reseta parcialmente e define a variavel
 		} break;
 
 		/*--------- Inúteis ----------*/
-		case ' ':{
+		case ' ':{	// Do nothing
 		} break;
 
 		/*--------- Pegam o valor ----------*/
 		case '0':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '1':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '2':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '3':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '4':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '5':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '6':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '7':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '8':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 		case '9':{
-			val = interpreta_numero(rec,index,val);
-			index++;
+			val = interpreta_numero(rec);
 		}break;
 
 		/*--------- Marca o ponto ----------*/
 		case '.':{
 			if(index_ponto < 0){
-				printf("%s[%dG.", ESC, 6 + index);
-				index++;
+				interpreta_numero('.');
 				index_ponto = index;
 			}else{
-				comando_invalido();
-
-				/*  Reseta completamente  */
-				index_ponto = -1;
-				index = 0;
-				val = 0;
-				var = 0;
+				comando_invalido();	//  Imprime aviso
 			}
 		} break;
 		case ',':{
 			if(index_ponto < 0){
-				printf("%s[%dG.", ESC, 6 + index);
-				index++;
+				interpreta_numero('.');
 				index_ponto = index;
 			}else{
-				comando_invalido();
+				comando_invalido();	//  Imprime aviso
+			}
+		} break;
 
-				/*  Reseta completamente  */
-				index_ponto = -1;
-				index = 0;
-				val = 0;
-				var = 0;
+		/*--------- Apaga escrita ----------*/
+		case 127:{	// --- Backspace
+			if(index==0)
+				limpa_linha_comando();
+			else{
+				if(index==index_ponto)
+					index_ponto = -1;
+				else val = (int) val/10;
+
+				backspace();	// Imprime o backspace na tela
 			}
 		} break;
 
 		/*--------- Termina a coleta ----------*/
 		case '\n':{
-			val *= pow(10,index_ponto-index);
-			switch(var){
-				case 1:{*T = val;}break;
-				case 2:{*H = val;}break;
-				default:{
-					comando_invalido();
-				}
+			if(!finalizar){
+				// O índice do ponto só vale se for positivo
+				index_ponto = (index_ponto>=0)?index_ponto:index;
+				val *= pow(10,index_ponto-index);
+				*v[var] = val;
+
+				limpa_linha_comando();		//  Limpa a tela
 			}
-
-			/*  Limpa a tela  */
-			printf("%s", ESC "[4G");	// Vai para coluna 4
-			printf("%s", ESC "[0K");	// Limpa a linha
-
-			/*  Reseta completamente  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 0;
 		} break;
 
 		/*--------- Comando inválido ----------*/
 		default:{
-			comando_invalido();
-
-			/*  Reseta completamente  */
-			index_ponto = -1;
-			index = 0;
-			val = 0;
-			var = 0;
+			comando_invalido();	//  Imprime aviso
 		} break;
 	}
 }
