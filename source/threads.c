@@ -1,8 +1,9 @@
 //####################  Implementação das Threads  ####################//
+#include "threads.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
-#include <pthread.h>
 #include "instrumentacao.h"
 #include "display.h"
 
@@ -20,25 +21,25 @@ int S = 4184;			// 4184 J/KgC
 
 
 /*  Set points  */
-struct referencia Tref = {30,PTHREAD_MUTEX_INITIALIZER};
-struct referencia Href = {1.5,PTHREAD_MUTEX_INITIALIZER};
+struct referencia Tref = {30, INSTRUMENTACAO_MUTEX_INITIALIZER};
+struct referencia Href = {1.5,INSTRUMENTACAO_MUTEX_INITIALIZER};
 /*
 double Tref = 30;		// 30C
 double Href = 1.5;		// 1.5 m*/
 
 /*  inicializa_atuadores  */
-struct atuador Q  = {"aq-",PTHREAD_MUTEX_INITIALIZER,"0000"};
-struct atuador Ni = {"ani",PTHREAD_MUTEX_INITIALIZER,"0000"};
-struct atuador Nf = {"anf",PTHREAD_MUTEX_INITIALIZER,"0000"};
-struct atuador Na = {"ana",PTHREAD_MUTEX_INITIALIZER,"0000"};
+struct atuador Q  = {"aq-",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Ni = {"ani",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Nf = {"anf",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Na = {"ana",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
 
 
 /*  inicializa_sensores  */
-struct sensor T  = {"st-0",PTHREAD_MUTEX_INITIALIZER,"0000"}; 
-struct sensor H  = {"sh-0",PTHREAD_MUTEX_INITIALIZER,"0000"}; 
-struct sensor No = {"sno0",PTHREAD_MUTEX_INITIALIZER,"0000"}; 
-struct sensor Ta = {"sta0",PTHREAD_MUTEX_INITIALIZER,"0000"}; 
-struct sensor Ti = {"sti0",PTHREAD_MUTEX_INITIALIZER,"0000"}; 
+struct sensor T  = {"st-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor H  = {"sh-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor No = {"sno0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor Ta = {"sta0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor Ti = {"sti0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
 
 
 /*-----------  Sequências de impressão  ----------*/

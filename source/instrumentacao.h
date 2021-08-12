@@ -1,11 +1,14 @@
 //####################  Cabeçalho dos sensores e atuadores  ####################//
-#ifndef INSTRUMENTACAO_HEADER
-#define INSTRUMENTACAO_HEADER
+#ifndef INSTRUMENTACAO_H
+#define INSTRUMENTACAO_H
+
+#include <pthread.h>
+
+#define INSTRUMENTACAO_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 
 struct atuador
 {
 	char code[3];
-	//double valor;
 	pthread_mutex_t mutex;
 	char valor[1000];
 };

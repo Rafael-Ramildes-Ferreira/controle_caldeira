@@ -1,4 +1,6 @@
 //####################  Display do terminal  ####################//
+#include "display.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <gconio.h>
@@ -10,7 +12,7 @@
 
 #define ESC "\033"
 
-pthread_mutex_t mutex_scr = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
 
 int finalizar = false;
 

@@ -1,9 +1,10 @@
 //####################  Implementação dos sensores e atuadores  ####################//
+#include "instrumentacao.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include "comunicacao.h"
-#include "instrumentacao.h"
 
 
 #define toFloat(x) atof(x+3)

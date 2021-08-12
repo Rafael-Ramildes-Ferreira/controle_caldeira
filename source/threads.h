@@ -1,6 +1,6 @@
 //####################  Cabeçalho das Threads  ####################//
-#ifndef THREADS_HEADER
-#define THREADS_HEADER
+#ifndef THREADS_H
+#define THREADS_H
 
 /*  Threads do monitor  */
 void imprime_dados();
