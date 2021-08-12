@@ -15,7 +15,7 @@ pthread_mutex_t mutex_scr = PTHREAD_MUTEX_INITIALIZER;
 int finalizar = false;
 
 /*-----------  Funções de impressão de saída  ----------*/
-void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int index)
+void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int tempo)
 {	
 	pthread_mutex_lock(&mutex_scr);	
 	printf("%s", ESC "[?25l");			// Cursor invisível
@@ -38,8 +38,8 @@ void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor
 	printf("\n\n\n");
 
 	/*  Atualiza tempo  */
-	int min = index/60;
-	printf("%s %02d:%02d\n", ESC "[6G",min, index - 60*min);
+	int min = tempo/60;
+	printf("%s %02d:%02d\n", ESC "[6G",min, tempo - 60*min);
 
 	printf("\n\n");
 	printf("%s", ESC "[?25h");			// Cursor visível
@@ -112,7 +112,7 @@ void finalizar_programa()
 
 
 /*---------- Função de interpretação de entrada ----------*/
-void interpreta_escrita(double *v[])
+void interpreta_escrita(struct referencia *v[])
 {
 	static int index;
 	static double val;
@@ -285,14 +285,15 @@ void interpreta_escrita(double *v[])
 
 		/*--------- Termina a coleta ----------*/
 		case '\n':{
-			if(!finalizar){
+			if(var>=0){
 				// O índice do ponto só vale se for positivo
 				index_ponto = (index_ponto>=0)?index_ponto:index;
 				val *= pow(10,index_ponto-index);
-				*v[var] = val;
+				define_referencia(v[var],val);
 
 				limpa_linha_comando();		//  Limpa a tela
-			}
+
+			}else comando_invalido();		//  Imprime aviso
 		} break;
 
 		/*--------- Comando inválido ----------*/

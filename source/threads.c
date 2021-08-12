@@ -19,9 +19,12 @@ float R = 0.001;		// 0.001 Grau/(J/s)
 int S = 4184;			// 4184 J/KgC
 
 
-/*  Set points  */ 
+/*  Set points  */
+struct referencia Tref = {30,PTHREAD_MUTEX_INITIALIZER};
+struct referencia Href = {1.5,PTHREAD_MUTEX_INITIALIZER};
+/*
 double Tref = 30;		// 30C
-double Href = 1.5;		// 1.5 m
+double Href = 1.5;		// 1.5 m*/
 
 /*  inicializa_atuadores  */
 struct atuador Q  = {"aq-",PTHREAD_MUTEX_INITIALIZER,"0000"};
@@ -71,7 +74,7 @@ void imprime_dados(FILE *file)
 
 
 		/*  Imprime no file  */
-		fprintf(file,"%f,%f,%f,%f,%f,%f\n",Tref,le_sensor(&T),.00,Href,le_sensor(&H),.00);
+		fprintf(file,"%f,%f,%f,%f,%f,%f\n",le_referencia(&Tref),le_sensor(&T),.00,le_referencia(&Href),le_sensor(&H),.00);
 
 		/*  Ajeita o Timer  */
 		time.tv_sec += intervalo;
@@ -117,7 +120,7 @@ void le_teclado()
 
 
 	while(time_now.tv_sec - time_init.tv_sec < tempo_total){
-		interpreta_escrita((double *[]) {&Tref, &Href});
+		interpreta_escrita((struct referencia *[]) {&Tref, &Href});
 				
 		
 		clock_gettime(CLOCK_MONOTONIC,&time_now);
@@ -151,7 +154,7 @@ void controla_temperatura()
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,&time,NULL);
 		
 		/*  Define a atuação  */
-		temperatura_erro = Tref - le_sensor(&T);
+		temperatura_erro = le_referencia(&Tref) - le_sensor(&T);
 		integral_erro += temperatura_erro * intervalo*1e-9; // Intervalo em segundos
 		u = kp*(temperatura_erro) + ki*(integral_erro) + (le_sensor(&T)-le_sensor(&Ta))/R - S*(le_sensor(&Ti)-le_sensor(&T))*le_atuador(&Ni);
 		
@@ -195,7 +198,7 @@ void controla_nivel()
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,&time,NULL);
 
 		/*  Define a atuação  */
-		nivel_erro = Href - le_sensor(&H);
+		nivel_erro = le_referencia(&Href) - le_sensor(&H);
 		u = le_sensor(&No) + kp*nivel_erro - le_atuador(&Na);
 		
 		/*  Envia mensagem  */

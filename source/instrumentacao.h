@@ -1,7 +1,6 @@
 //####################  Cabeçalho dos sensores e atuadores  ####################//
-
-#ifndef instrumentos
-#define instrumentos
+#ifndef INSTRUMENTACAO_HEADER
+#define INSTRUMENTACAO_HEADER
 
 struct atuador
 {
@@ -18,10 +17,21 @@ struct sensor
 	char valor[1000];
 };
 
-#endif
+struct referencia
+{
+	double valor;
+	pthread_mutex_t mutex;
+};
+
 
 double le_sensor(struct sensor *x);
 
 void aciona_atuador(struct atuador *x,double valor);
 
 double le_atuador(struct atuador *x);
+
+double define_referencia(struct referencia *x,double val);
+
+double le_referencia(struct referencia *x);
+
+#endif
