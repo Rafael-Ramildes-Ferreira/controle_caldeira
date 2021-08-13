@@ -4,7 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <gconio.h>
-#include <pthread.h>
+//#include <pthread.h>
 #include "instrumentacao.h"
 
 #define false 0
@@ -12,14 +12,14 @@
 
 #define ESC "\033"
 
-pthread_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
+instrumentacao_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
 
 int finalizar = false;
 
 /*-----------  Funções de impressão de saída  ----------*/
 void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int tempo)
 {	
-	pthread_mutex_lock(&mutex_scr);	
+	instrumentacao_mutex_lock(&mutex_scr);	
 	printf("%s", ESC "[?25l");			// Cursor invisível
 
 	/*  Atualiza atuadores  */
@@ -45,12 +45,12 @@ void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor
 
 	printf("\n\n");
 	printf("%s", ESC "[?25h");			// Cursor visível
-	pthread_mutex_unlock(&mutex_scr);	
+	instrumentacao_mutex_unlock(&mutex_scr);	
 }
 
 void inicializa_interface(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2)
 {
-	pthread_mutex_lock(&mutex_scr);	
+	instrumentacao_mutex_lock(&mutex_scr);	
 	printf("%s", ESC "[?25l");	// Cursor invisível
 	printf("\n");
 
@@ -71,13 +71,13 @@ void inicializa_interface(struct atuador *lista1[],int lenght1,struct sensor *li
 	printf("Escreva T 123.45 ou H 123.45 para redefinir o set-point\nde T ou H para 123.45 ou qualquer outro valor\n");
 	printf("==>");
 	printf("%s", ESC "[?25h");	// Cursor visível
-	pthread_mutex_unlock(&mutex_scr);	
+	instrumentacao_mutex_unlock(&mutex_scr);	
 }
 
 /*---------- Funções de alarme ----------*/
 void print_warning(int valor)
 {
-	pthread_mutex_lock(&mutex_scr);
+	instrumentacao_mutex_lock(&mutex_scr);
 	printf("%s", ESC "[?25l");	// Cursor invisível
 	printf("%s", ESC "[10A");	// Sobe 10 linhas
 	printf("%s", ESC "[1m");	// Põe em negrito
@@ -87,26 +87,26 @@ void print_warning(int valor)
 	printf("%s", ESC "[0m");	// Reseta estilo da escrita
 	printf("\n\n\n\n\n\n\n\n\n\n");	// Desce todas as 10 linhas
 	printf("%s", ESC "[?25h");	// Cursor visível
-	pthread_mutex_unlock(&mutex_scr);
+	instrumentacao_mutex_unlock(&mutex_scr);
 }
 
 void dont_print_warning()
 {
-	pthread_mutex_lock(&mutex_scr);
+	instrumentacao_mutex_lock(&mutex_scr);
 	printf("%s", ESC "[?25l");	// Cursor invisível
 	printf("%s", ESC "[10A");	// Sobe 10 linhas
 	printf("%s", ESC "[K");		// Limpa a linha
 	printf("\n\n\n\n\n\n\n\n\n\n");	// Desce todas as 10 linhas
 	printf("%s", ESC "[?25h");	// Cursor visível
-	pthread_mutex_unlock(&mutex_scr);
+	instrumentacao_mutex_unlock(&mutex_scr);
 }
 
 /*---------- Finalização do programa ----------*/
 void finalizar_programa()
 {
-	pthread_mutex_lock(&mutex_scr);
+	instrumentacao_mutex_lock(&mutex_scr);
 	printf("\nPressione ENTER para finalizar . . .\n");
-	pthread_mutex_unlock(&mutex_scr);
+	instrumentacao_mutex_unlock(&mutex_scr);
 	
 	finalizar = true;
 }
@@ -135,10 +135,10 @@ void interpreta_escrita(struct referencia *v[])
 
 	void limpa_linha_comando()
 	{
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s", ESC "[4G");		// Move o cursor para coluna 4
 		printf("%s", ESC "[0K");		// apaga dala pra frente
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		escolhe_desativa_variavel(-1);	//  Reseta completamente
 	}
@@ -147,50 +147,50 @@ void interpreta_escrita(struct referencia *v[])
 	{
 		index -= 1;
 
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s[%dG", ESC, 6 + index);	// Move o cursor para trás
 		printf("%s", ESC "[0K");		// apaga dala pra frente
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 	}
 
 	void comando_invalido()
 	{
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s", ESC "[4G");
 		printf("%s", ESC "[?25l");	// Cursor invisível
 		printf("%s", ESC "[38;5;196m");	// Põe em vermelho
 		printf("Comando invalido!!");
 		printf("%s", ESC "[0m");	// Reseta estilo da escrita
 		printf("%s", ESC "[?25h");	// Cursor visível
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		delay(1500);
 
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s", ESC "[0G");	// Vai para coluna 0
 		printf("%s", ESC "[0K");	// Limpa a linha
 		printf("==>");			
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		escolhe_desativa_variavel(-1);	//  Reseta completamente
 	}
 
 	void interpreta_texto(char input)
 	{
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s", ESC "[4G");	// Vai para coluna 4
 		printf("%s", ESC "[0K");	// Limpa a linha
 		printf("%c", input);
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 	}
 
 	double interpreta_numero(char input)
 	{
-		pthread_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
 		printf("%s[%dG", ESC, 6 + index);	// Vai para coluna 4
 		printf("%s", ESC "[0K");		// Limpa a linha dali pra frente
 		printf("%c", input);
-		pthread_mutex_unlock(&mutex_scr);
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		index++;
 		

@@ -4,7 +4,10 @@
 
 #include <pthread.h>
 
-#define INSTRUMENTACAO_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+#define INSTRUMENTACAO_MUTEX_INITIALIZER	PTHREAD_MUTEX_INITIALIZER
+#define instrumentacao_mutex_lock(mutex) 	pthread_mutex_lock(mutex)
+#define instrumentacao_mutex_unlock(mutex) 	pthread_mutex_unlock(mutex)
+#define instrumentacao_mutex_t 			pthread_mutex_t
 
 struct atuador
 {

@@ -14,6 +14,7 @@
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em segundos)
 #define executa_sec(index,intervalo) for(int index = 0;index<tempo_total/intervalo;index++)
 
+#define limitado(val,inf,sup) ((val<=inf)?inf:(val>=sup)?sup:val)
 
 /*  infos  */
 float R = 0.001;		// 0.001 Grau/(J/s)
@@ -137,7 +138,7 @@ void controla_temperatura()
 
 	/*  Variáveis do controle  */
 	// Parâmetros
-	double kp = 250000;		// Ganho proporcional
+	double kp = 300000;		// Ganho proporcional
 	double ki = 3;//5		// Ganho integral
 	double u;			// Atuação
 
@@ -145,6 +146,7 @@ void controla_temperatura()
 	double temperatura_erro;	
 	double integral_erro = 0;
 
+	double tanque_auxiliar;
 
 	/*  Prepara o relógio  */
 	clock_gettime(CLOCK_MONOTONIC,&time);
@@ -156,13 +158,19 @@ void controla_temperatura()
 		
 		/*  Define a atuação  */
 		temperatura_erro = le_referencia(&Tref) - le_sensor(&T);
-		integral_erro += temperatura_erro * intervalo*1e-9; // Intervalo em segundos
+		//integral_erro += temperatura_erro * intervalo*1e-9; // Intervalo em segundos
 		u = kp*(temperatura_erro) + ki*(integral_erro) + (le_sensor(&T)-le_sensor(&Ta))/R - S*(le_sensor(&Ti)-le_sensor(&T))*le_atuador(&Ni);
-		
 
 		/*  Envia a mensagem  */
-		aciona_atuador(&Q,u);
-		aciona_atuador(&Na,(u - le_atuador(&Q))/(S*(80-le_sensor(&T))));
+		if(u >= 0){
+			aciona_atuador(&Q,u);
+			tanque_auxiliar = (u - le_atuador(&Q))/(S*(80-le_sensor(&T)));
+			aciona_atuador(&Na,(tanque_auxiliar<=10)?tanque_auxiliar:10);
+		}else{
+			aciona_atuador(&Q,0);
+			tanque_auxiliar = 0;
+			aciona_atuador(&Na,tanque_auxiliar);
+		}
 
 		//printf("Controle da temperatura\n");
 

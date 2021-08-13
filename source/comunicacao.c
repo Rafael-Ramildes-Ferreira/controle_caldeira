@@ -99,7 +99,6 @@ void envia_armazena(char msg[1000],char store[1000])
 	envia_mensagem(socket_local, endereco_destino, msg);
 	nrec = recebe_mensagem(socket_local, store, 1000);
 	store[nrec] = '\0';
-	//printf("\n%s\n",store);
 
 	pthread_mutex_unlock(&mutex_udp);					// --- Desloqueia
 }
