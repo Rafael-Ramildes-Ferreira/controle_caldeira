@@ -14,7 +14,6 @@
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em segundos)
 #define executa_sec(index,intervalo) for(int index = 0;index<tempo_total/intervalo;index++)
 
-#define limitado(val,inf,sup) ((val<=inf)?inf:(val>=sup)?sup:val)
 
 /*  infos  */
 float R = 0.001;		// 0.001 Grau/(J/s)
@@ -29,10 +28,10 @@ double Tref = 30;		// 30C
 double Href = 1.5;		// 1.5 m*/
 
 /*  inicializa_atuadores  */
-struct atuador Q  = {"aq-",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Ni = {"ani",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Nf = {"anf",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Na = {"ana",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Q  = {"aq-",1000000,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Ni = {"ani",100,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Nf = {"anf",100,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Na = {"ana",10,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
 
 
 /*  inicializa_sensores  */
@@ -139,12 +138,10 @@ void controla_temperatura()
 	/*  Variáveis do controle  */
 	// Parâmetros
 	double kp = 300000;		// Ganho proporcional
-	double ki = 3;//5		// Ganho integral
 	double u;			// Atuação
 
 	// Variáveis
-	double temperatura_erro;	
-	double integral_erro = 0;
+	double erro;
 
 	double tanque_auxiliar;
 
@@ -157,20 +154,12 @@ void controla_temperatura()
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,&time,NULL);
 		
 		/*  Define a atuação  */
-		temperatura_erro = le_referencia(&Tref) - le_sensor(&T);
-		//integral_erro += temperatura_erro * intervalo*1e-9; // Intervalo em segundos
-		u = kp*(temperatura_erro) + ki*(integral_erro) + (le_sensor(&T)-le_sensor(&Ta))/R - S*(le_sensor(&Ti)-le_sensor(&T))*le_atuador(&Ni);
+		erro = le_referencia(&Tref) - le_sensor(&T);
+		u = kp*(erro) + (le_sensor(&T)-le_sensor(&Ta))/R - S*(le_sensor(&Ti)-le_sensor(&T))*le_atuador(&Ni);
 
 		/*  Envia a mensagem  */
-		if(u >= 0){
-			aciona_atuador(&Q,u);
-			tanque_auxiliar = (u - le_atuador(&Q))/(S*(80-le_sensor(&T)));
-			aciona_atuador(&Na,(tanque_auxiliar<=10)?tanque_auxiliar:10);
-		}else{
-			aciona_atuador(&Q,0);
-			tanque_auxiliar = 0;
-			aciona_atuador(&Na,tanque_auxiliar);
-		}
+		aciona_atuador(&Q,u);
+		aciona_atuador(&Na,(u - le_atuador(&Q))/(S*(80-le_sensor(&T))));
 
 		//printf("Controle da temperatura\n");
 
@@ -191,11 +180,11 @@ void controla_nivel()
 
 	/*  Variáveis de controle  */
 	// Parâmetros
-	double kp = 16;
+	double kp = 30;
 	double u;			// Atuação
 
 	// Variável
-	double nivel_erro;
+	double erro;
 
 
 	/*  Prepara o relógio  */
@@ -207,8 +196,8 @@ void controla_nivel()
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,&time,NULL);
 
 		/*  Define a atuação  */
-		nivel_erro = le_referencia(&Href) - le_sensor(&H);
-		u = le_sensor(&No) + kp*nivel_erro - le_atuador(&Na);
+		erro = le_referencia(&Href) - le_sensor(&H);
+		u = kp*erro + le_sensor(&No) - le_atuador(&Na);
 		
 		/*  Envia mensagem  */
 		if(u<0) {

@@ -4,7 +4,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <gconio.h>
-//#include <pthread.h>
 #include "instrumentacao.h"
 
 #define false 0
@@ -287,7 +286,7 @@ void interpreta_escrita(struct referencia *v[])
 
 		/*--------- Termina a coleta ----------*/
 		case '\n':{
-			if(var>=0){
+			if(var>=0 && !finalizar){
 				// O índice do ponto só vale se for positivo
 				index_ponto = (index_ponto>=0)?index_ponto:index;
 				val *= pow(10,index_ponto-index);
@@ -295,7 +294,8 @@ void interpreta_escrita(struct referencia *v[])
 
 				limpa_linha_comando();		//  Limpa a tela
 
-			}else comando_invalido();		//  Imprime aviso
+			}else if(!finalizar)
+				comando_invalido();		//  Imprime aviso
 		} break;
 
 		/*--------- Comando inválido ----------*/

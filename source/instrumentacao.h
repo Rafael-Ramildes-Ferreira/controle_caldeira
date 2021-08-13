@@ -9,9 +9,12 @@
 #define instrumentacao_mutex_unlock(mutex) 	pthread_mutex_unlock(mutex)
 #define instrumentacao_mutex_t 			pthread_mutex_t
 
+
 struct atuador
 {
 	char code[3];
+	double max;
+	double min;
 	pthread_mutex_t mutex;
 	char valor[1000];
 };

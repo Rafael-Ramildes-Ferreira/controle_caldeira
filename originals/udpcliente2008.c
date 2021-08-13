@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
 	printf("tentativa\n");
 
-	envia_mensagem(socket_local, endereco_destino, "aq-");
+	envia_mensagem(socket_local, endereco_destino, argv[3]);
 
 	nrec = recebe_mensagem(socket_local, msg_recebida, 1000);
 	
