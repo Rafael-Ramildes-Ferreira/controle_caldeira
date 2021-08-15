@@ -24,12 +24,12 @@ for linha in file:
 
 fig, axs = plt.subplots(2,sharex=True)
 
-X = [x for x in range(len(temp_desej)-1)]
-axs[0].plot(X,temp_desej[1:],label="Temperatura desejada")
-axs[0].plot(X,temp_efetiv[1:],label="Temperatura efetiva")
+#X = [x for x in range(len(temp_desej)-1)]
+axs[0].plot([x*3600/len(temp_desej) for x in range(len(temp_desej)-1)],temp_desej[1:],label="Temperatura desejada")
+axs[0].plot([x*3600/len(temp_efetiv) for x in range(len(temp_efetiv)-1)],temp_efetiv[1:],label="Temperatura efetiva")
 #plt.plot(temp_atuac[1:],label="Sinal de atuação do aquecedor (*10^4)")
-axs[1].plot(X,nivel_desej[1:],label="Nível desejado")
-axs[1].plot(X,nivel_efetiv[1:],label="Nível efetivo")
+axs[1].plot([x*3600/len(nivel_desej) for x in range(len(nivel_desej)-1)],nivel_desej[1:],label="Nível desejado")
+axs[1].plot([x*3600/len(nivel_efetiv) for x in range(len(nivel_efetiv)-1)],nivel_efetiv[1:],label="Nível efetivo")
 #plt.plot(nivel_atuac[1:],label="Sinal de atuação da entrada d'água")
 
 axs[0].set_ylabel("Celsius")

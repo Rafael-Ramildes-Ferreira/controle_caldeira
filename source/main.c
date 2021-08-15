@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
 
 	pthread_create(&thread1,NULL,(void *) controla_temperatura,NULL);
 	pthread_create(&thread2,NULL,(void *) controla_nivel,NULL);
-	pthread_create(&thread3,NULL,(void *) imprime_dados,(void *) file);
+	pthread_create(&thread3,NULL,(void *) imprime_dados,NULL);//(void *) file);
 	pthread_create(&thread4,NULL,(void *) monitora_temperatura,NULL);
 	pthread_create(&thread5,NULL,(void *) le_teclado,NULL);
+	pthread_create(&thread5,NULL,(void *) salva_dados,(void *) file);
 
 
 	pthread_join(thread1,NULL);
