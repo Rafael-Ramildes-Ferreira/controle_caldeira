@@ -137,6 +137,7 @@ void salva_dados(FILE *file)
 		clock_gettime(CLOCK_MONOTONIC,&time_now);
 	}while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL);
 }
+
 /*-----------  Sequências para leitura de teclado  ----------*/
 void le_teclado()
 {
