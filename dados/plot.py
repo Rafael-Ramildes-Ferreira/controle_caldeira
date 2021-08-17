@@ -23,11 +23,6 @@ for linha in file:
 
 fig, axs = plt.subplots(2,sharex=True)
 
-#X = [x for x in range(len(temp_desej)-1)]
-#axs[0].plot([x*3600/len(temp_desej) for x in range(len(temp_desej)-1)],temp_desej[1:],label="Temperatura desejada")
-#axs[0].plot([x*3600/len(temp_efetiv) for x in range(len(temp_efetiv)-1)],temp_efetiv[1:],label="Temperatura efetiva")
-#axs[1].plot([x*3600/len(nivel_desej) for x in range(len(nivel_desej)-1)],nivel_desej[1:],label="Nível desejado")
-#axs[1].plot([x*3600/len(nivel_efetiv) for x in range(len(nivel_efetiv)-1)],nivel_efetiv[1:],label="Nível efetivo")
 axs[0].plot(tempo,temp_desej,label="Temperatura desejada")
 axs[0].plot(tempo,temp_efetiv,label="Temperatura efetiva")
 axs[1].plot(tempo,nivel_desej,label="Nível desejado")
