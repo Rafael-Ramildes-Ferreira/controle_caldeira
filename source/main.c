@@ -12,7 +12,7 @@
 
 
 /*  Variáveis da pthreads  */
-pthread_t thread1,thread2,thread3,thread4,thread5;
+pthread_t thread1,thread2,thread3,thread4,thread5,thread6;
 
 	
 /*  Dados  */
@@ -34,14 +34,15 @@ int main(int argc, char *argv[])
 	
 	//FILE *file = fopen("./Dados/temp.txt","w");
 	file = fopen("./dados/dados.csv","w");	// main.c está em ./source, mas a posição é relativa a controladora (em ./)
-	fprintf(file,"Temperatura desejada do tanque,Temperatura atual do tanque,Sinal de atuacao da temperatura,Nivel desejado do tanque,Nivel atual do Tanque,Sinal de atuacao da entrada dagua\n");
+	fprintf(file,"Tempo em min:sec,Temperatura desejada do tanque,Temperatura atual do tanque,Nivel desejado do tanque,Nivel atual do Tanque\n");
 
 
 	pthread_create(&thread1,NULL,(void *) controla_temperatura,NULL);
 	pthread_create(&thread2,NULL,(void *) controla_nivel,NULL);
-	pthread_create(&thread3,NULL,(void *) imprime_dados,(void *) file);
+	pthread_create(&thread3,NULL,(void *) imprime_dados,NULL);//(void *) file);
 	pthread_create(&thread4,NULL,(void *) monitora_temperatura,NULL);
 	pthread_create(&thread5,NULL,(void *) le_teclado,NULL);
+	pthread_create(&thread6,NULL,(void *) salva_dados,(void *) file);
 
 
 	pthread_join(thread1,NULL);
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
 	pthread_join(thread3,NULL);
 	pthread_join(thread4,NULL);
 	pthread_join(thread5,NULL);
+	pthread_join(thread6,NULL);
 	
 	printf("%s","\033[?25h");	// Cursor visível
 	fclose(file);

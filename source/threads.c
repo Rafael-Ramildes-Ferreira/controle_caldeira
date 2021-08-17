@@ -5,14 +5,15 @@
 #include <time.h>
 #include <unistd.h>
 #include "instrumentacao.h"
+#include "double_buffer.h"
 #include "display.h"
 
-#define tempo_total 3600
+#define TEMPO_TOTAL 3600
 
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em nano)
-#define executa_nano(intervalo) for(int index = 0;index<tempo_total/(intervalo*1e-9);index++)
+#define executa_nano(intervalo) for(int index = 0;index<TEMPO_TOTAL/(intervalo*1e-9);index++)
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em segundos)
-#define executa_sec(index,intervalo) for(int index = 0;index<tempo_total/intervalo;index++)
+#define executa_sec(index,intervalo) for(int index = 0;index<TEMPO_TOTAL/intervalo;index++)
 
 
 /*  infos  */
@@ -23,9 +24,6 @@ int S = 4184;			// 4184 J/KgC
 /*  Set points  */
 struct referencia Tref = {30, INSTRUMENTACAO_MUTEX_INITIALIZER};
 struct referencia Href = {1.5,INSTRUMENTACAO_MUTEX_INITIALIZER};
-/*
-double Tref = 30;		// 30C
-double Href = 1.5;		// 1.5 m*/
 
 /*  inicializa_atuadores  */
 struct atuador Q  = {"aq-",1000000,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
@@ -43,7 +41,7 @@ struct sensor Ti = {"sti0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
 
 
 /*-----------  Sequências de impressão  ----------*/
-void imprime_dados(FILE *file)
+void imprime_dados()
 {
 	struct timespec time;
 	int intervalo = 1;	  // 1s
@@ -74,9 +72,6 @@ void imprime_dados(FILE *file)
 		atualiza_valores_da_tela(atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores,index);
 
 
-		/*  Imprime no file  */
-		fprintf(file,"%f,%f,%f,%f,%f,%f\n",le_referencia(&Tref),le_sensor(&T),.00,le_referencia(&Href),le_sensor(&H),.00);
-
 		/*  Ajeita o Timer  */
 		time.tv_sec += intervalo;
 	}
@@ -91,6 +86,8 @@ void monitora_temperatura()
 	
 	int limite_seguro = 30;		// 30C
 
+	int indice = 0;
+
 	/*  Prepara o Timer  */
 	clock_gettime(CLOCK_MONOTONIC,&time);
 	time.tv_nsec += intervalo;
@@ -102,6 +99,12 @@ void monitora_temperatura()
 			print_warning(limite_seguro);
 		else dont_print_warning();
 
+		escreve_buffer((double) (indice++)*intervalo*1e-9);
+		escreve_buffer(le_referencia(&Tref));
+		escreve_buffer(le_sensor(&T));
+		escreve_buffer(le_referencia(&Href));
+		escreve_buffer(le_sensor(&H));
+
 		/*  Ajeita o Timer  */
 		time.tv_nsec += intervalo;
 		while (time.tv_nsec >= 1e+9) {
@@ -109,6 +112,35 @@ void monitora_temperatura()
 		       time.tv_sec++;
 		}
 	}
+	libera_buffer();
+}
+
+void salva_dados(FILE *file)
+{
+	struct timespec time_init,time_now;
+	clock_gettime(CLOCK_MONOTONIC,&time_init);
+
+	double * dados;
+	double sec;
+	int min;
+
+	do{
+		dados = acessa_buffer();
+		
+		for(int i = 0; i < TAMBUF;i+=5){
+			sec = (*(dados+i));
+			min = sec/60;
+			fprintf(file,"%02d:%05.2f,%lf,%lf,%lf,%lf\n",
+				min,			// Imprime o tempo em min:sec
+				sec-min*60,		// segundos
+				*(dados+i+1),		// Temperatude de Referência
+				*(dados+i+2),		// Temperatura efetiva
+				*(dados+i+3),		// Nível de referência
+				*(dados+i+4));		// Nível efetivo
+		}
+
+		clock_gettime(CLOCK_MONOTONIC,&time_now);
+	}while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL);
 }
 
 
@@ -120,7 +152,7 @@ void le_teclado()
 	clock_gettime(CLOCK_MONOTONIC,&time_now);
 
 
-	while(time_now.tv_sec - time_init.tv_sec < tempo_total){
+	while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL){
 		interpreta_escrita((struct referencia *[]) {&Tref, &Href});
 				
 		
@@ -180,7 +212,7 @@ void controla_nivel()
 
 	/*  Variáveis de controle  */
 	// Parâmetros
-	double kp = 30;
+	double kp = 50;
 	double u;			// Atuação
 
 	// Variável
