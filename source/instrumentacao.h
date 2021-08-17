@@ -12,7 +12,7 @@
 
 struct atuador
 {
-	char code[3];
+	char token[3];
 	double max;
 	double min;
 	pthread_mutex_t mutex;
@@ -21,7 +21,7 @@ struct atuador
 
 struct sensor
 {
-	char code[4];
+	char token[4];
 	pthread_mutex_t mutex;
 	char valor[1000];
 };

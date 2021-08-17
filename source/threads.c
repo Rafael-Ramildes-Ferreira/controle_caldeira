@@ -58,13 +58,13 @@ void imprime_dados()
 	sensoores_para_impressao[0] = &T;
 	sensoores_para_impressao[1] = &H;
 
+	/*  Imprime no terminal  */
+	inicializa_interface(atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores);
+	
 	/*  Prepara o Timer  */
 	clock_gettime(CLOCK_MONOTONIC,&time);
 	time.tv_sec += intervalo;
 
-	/*  Imprime no terminal  */
-	inicializa_interface(atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores);
-	
 	executa_sec(index,intervalo){
 		clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,&time,NULL);
 
@@ -79,7 +79,24 @@ void imprime_dados()
 	finalizar_programa();
 }
 
-void monitora_temperatura()
+/*-----------  Sequências para leitura de teclado  ----------*/
+void escuta_teclado()
+{
+	struct timespec time_init,time_now;
+	clock_gettime(CLOCK_MONOTONIC,&time_init);
+	clock_gettime(CLOCK_MONOTONIC,&time_now);
+
+
+	while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL){
+		interpreta_escrita((struct referencia *[]) {&Tref, &Href});
+				
+		
+		clock_gettime(CLOCK_MONOTONIC,&time_now);
+	}
+}
+
+/*-----------  Sequências de coleção de dados  ----------*/
+void monitoramento()
 {
 	struct timespec time;
 	int intervalo = 0.01e+9;	// 0.1s = 10ms = 10 000 000ns
@@ -141,23 +158,6 @@ void salva_dados(FILE *file)
 
 		clock_gettime(CLOCK_MONOTONIC,&time_now);
 	}while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL);
-}
-
-
-/*-----------  Sequências para leitura de teclado  ----------*/
-void le_teclado()
-{
-	struct timespec time_init,time_now;
-	clock_gettime(CLOCK_MONOTONIC,&time_init);
-	clock_gettime(CLOCK_MONOTONIC,&time_now);
-
-
-	while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL){
-		interpreta_escrita((struct referencia *[]) {&Tref, &Href});
-				
-		
-		clock_gettime(CLOCK_MONOTONIC,&time_now);
-	}
 }
 
 
@@ -232,13 +232,8 @@ void controla_nivel()
 		u = kp*erro + le_sensor(&No) - le_atuador(&Na);
 		
 		/*  Envia mensagem  */
-		if(u<0) {
-			aciona_atuador(&Nf,-u);
-			aciona_atuador(&Ni,0);
-		} else {
-			aciona_atuador(&Ni,u);
-			aciona_atuador(&Nf,0);
-		}
+		aciona_atuador(&Ni,u);
+		aciona_atuador(&Nf,-u);
 		
 		//printf("Controle do nível\n");
 

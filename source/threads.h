@@ -7,7 +7,10 @@
 /*  Threads do monitor  */
 void imprime_dados();
 
-void monitora_temperatura();
+void escuta_teclado();
+
+/*  Threads de infos  */
+void monitoramento();
 
 void salva_dados(FILE *file);
 
@@ -15,7 +18,5 @@ void salva_dados(FILE *file);
 void controla_temperatura();
 
 void controla_nivel();
-
-void le_teclado();
 
 #endif

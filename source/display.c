@@ -25,7 +25,7 @@ void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor
 	printf("%s", ESC "[8A"); 			// Sobe 8 linhas
 	for(int i = 0;i < lenght1;i++){
 		printf("%s", ESC "[7G"); 		// Anda 7 colunas para direita
-		printf("%-f", le_atuador(lista1[i]));	// Extrai e escreve o valor
+		printf("%09.6f", le_atuador(lista1[i]));	// Extrai e escreve o valor
 		printf("\n");				// Passa pra próxima linha
 	}
 
@@ -33,7 +33,7 @@ void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor
 	printf("%s", ESC "[4A");			// Sobe 4 linhas
 	for(int i = 0;i < lenght2;i++){
 		printf("%s", ESC "[30G");		// Anda 30 colunas para direita
-		printf("%-f",le_sensor(lista2[i]));	// Extrai e escreve o valor
+		printf("%09.6f",le_sensor(lista2[i]));	// Extrai e escreve o valor
 		printf("\n");				// Passa pra próxima linha
 	}
 	printf("\n\n\n");
@@ -55,13 +55,13 @@ void inicializa_interface(struct atuador *lista1[],int lenght1,struct sensor *li
 
 	printf("--------------------------------------\n");
 	for(int i = 0;i < lenght1;i++){
-		printf("%s = \n",lista1[i]->code);
+		printf("%s = \n",lista1[i]->token);
 	}
 	printf("--------------------------------------\n");
 
 	printf("%s", ESC "[5A");	// Sobe 5 linhas
 	for(int i = 0;i < lenght2;i++){
-		printf("%s%s = \n", ESC "[23G",lista2[i]->code);
+		printf("%s%s = \n", ESC "[23G",lista2[i]->token);
 	}
 
 	printf("\n\n\n");			// Passa pra próxima linha
