@@ -24,9 +24,6 @@ int S = 4184;			// 4184 J/KgC
 /*  Set points  */
 struct referencia Tref = {30, INSTRUMENTACAO_MUTEX_INITIALIZER};
 struct referencia Href = {1.5,INSTRUMENTACAO_MUTEX_INITIALIZER};
-/*
-double Tref = 30;		// 30C
-double Href = 1.5;		// 1.5 m*/
 
 /*  inicializa_atuadores  */
 struct atuador Q  = {"aq-",1000000,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
@@ -75,9 +72,6 @@ void imprime_dados()
 		atualiza_valores_da_tela(atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores,index);
 
 
-		/*  Imprime no file  */
-		//fprintf(file,"%f,%f,%f,%f,%f,%f\n",le_referencia(&Tref),le_sensor(&T),.00,le_referencia(&Href),le_sensor(&H),.00);
-
 		/*  Ajeita o Timer  */
 		time.tv_sec += intervalo;
 	}
@@ -92,6 +86,8 @@ void monitora_temperatura()
 	
 	int limite_seguro = 30;		// 30C
 
+	int indice = 0;
+
 	/*  Prepara o Timer  */
 	clock_gettime(CLOCK_MONOTONIC,&time);
 	time.tv_nsec += intervalo;
@@ -103,12 +99,11 @@ void monitora_temperatura()
 			print_warning(limite_seguro);
 		else dont_print_warning();
 
+		escreve_buffer((double) (indice++)*intervalo*1e-9);
 		escreve_buffer(le_referencia(&Tref));
 		escreve_buffer(le_sensor(&T));
-		escreve_buffer(0.0);
 		escreve_buffer(le_referencia(&Href));
 		escreve_buffer(le_sensor(&H));
-		escreve_buffer(0.0);
 
 		/*  Ajeita o Timer  */
 		time.tv_nsec += intervalo;
@@ -126,17 +121,28 @@ void salva_dados(FILE *file)
 	clock_gettime(CLOCK_MONOTONIC,&time_init);
 
 	double * dados;
+	double sec;
+	int min;
 
 	do{
 		dados = acessa_buffer();
 		
-		for(int i = 0; i < TAMBUF;i++)
-			fprintf(file,"%f%c",*(dados+i),((i+1)%6==0)?'\n':',');
-							// Quebra linha ou põe ','
+		for(int i = 0; i < TAMBUF;i+=5){
+			sec = (*(dados+i));
+			min = sec/60;
+			fprintf(file,"%02d:%05.2f,%lf,%lf,%lf,%lf\n",
+				min,			// Imprime o tempo em min:sec
+				sec-min*60,		// segundos
+				*(dados+i+1),		// Temperatude de Referência
+				*(dados+i+2),		// Temperatura efetiva
+				*(dados+i+3),		// Nível de referência
+				*(dados+i+4));		// Nível efetivo
+		}
 
 		clock_gettime(CLOCK_MONOTONIC,&time_now);
 	}while(time_now.tv_sec - time_init.tv_sec < TEMPO_TOTAL);
 }
+
 
 /*-----------  Sequências para leitura de teclado  ----------*/
 void le_teclado()

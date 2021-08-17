@@ -26,7 +26,7 @@ void aciona_atuador(struct atuador *x,double valor)
 	char msg[1000];
 	
 	instrumentacao_mutex_lock(&x->mutex);
-	sprintf(msg,"%s%f",x->code,limitado(valor,x->min,x->max));
+	sprintf(msg,"%s%lf",x->code,limitado(valor,x->min,x->max));
 	envia_armazena(msg,x->valor);
 	instrumentacao_mutex_unlock(&x->mutex);
 
