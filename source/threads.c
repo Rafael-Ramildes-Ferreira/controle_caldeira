@@ -7,8 +7,10 @@
 #include "instrumentacao.h"
 #include "double_buffer.h"
 #include "display.h"
+#define  DECLARE_VARS
+#include "vars.h"
 
-#define TEMPO_TOTAL 3600
+#define TEMPO_TOTAL 10
 
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em nano)
 #define executa_nano(intervalo) for(int index = 0;index<TEMPO_TOTAL/(intervalo*1e-9);index++)
@@ -19,25 +21,6 @@
 /*  infos  */
 float R = 0.001;		// 0.001 Grau/(J/s)
 int S = 4184;			// 4184 J/KgC
-
-
-/*  Set points  */
-struct referencia Tref = {30, INSTRUMENTACAO_MUTEX_INITIALIZER};
-struct referencia Href = {1.5,INSTRUMENTACAO_MUTEX_INITIALIZER};
-
-/*  inicializa_atuadores  */
-struct atuador Q  = {"aq-",1000000,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Ni = {"ani",100,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Nf = {"anf",100,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-struct atuador Na = {"ana",10,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
-
-
-/*  inicializa_sensores  */
-struct sensor T  = {"st-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
-struct sensor H  = {"sh-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
-struct sensor No = {"sno0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
-struct sensor Ta = {"sta0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
-struct sensor Ti = {"sti0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
 
 
 /*-----------  Sequências de impressão  ----------*/
@@ -138,11 +121,12 @@ void salva_dados(FILE *file)
 	clock_gettime(CLOCK_MONOTONIC,&time_init);
 
 	double * dados;
+	int ultimo_buffer_lido = -1;
 	double sec;
 	int min;
 
 	do{
-		dados = acessa_buffer();
+		dados = acessa_buffer(&ultimo_buffer_lido);
 		
 		for(int i = 0; i < TAMBUF;i+=5){
 			sec = (*(dados+i));

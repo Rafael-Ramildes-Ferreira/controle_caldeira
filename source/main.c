@@ -5,8 +5,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <pthread.h>
-#include "./threads.h"
-#include "./comunicacao.h"
+#include "threads.h"
+#include "comunicacao.h"
 
 #define FALHA 1
 

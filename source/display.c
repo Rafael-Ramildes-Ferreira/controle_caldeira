@@ -6,6 +6,7 @@
 #include <gconio.h>
 #include "instrumentacao.h"
 
+
 #define false 0
 #define true  1
 
@@ -24,9 +25,9 @@ void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor
 	/*  Atualiza atuadores  */
 	printf("%s", ESC "[8A"); 			// Sobe 8 linhas
 	for(int i = 0;i < lenght1;i++){
-		printf("%s", ESC "[7G"); 		// Anda 7 colunas para direita
+		printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
 		printf("%09.6f", le_atuador(lista1[i]));	// Extrai e escreve o valor
-		printf("\n");				// Passa pra próxima linha
+		printf("\n");					// Passa pra próxima linha
 	}
 
 	/*  Atualiza sensores  */

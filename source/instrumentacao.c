@@ -12,7 +12,7 @@
 
 /* Funções para manipular as estruturas  */
 double le_sensor(struct sensor *x)  
-{					
+{
 	instrumentacao_mutex_lock(&x->mutex);
 	envia_armazena(x->token,x->valor);
 	double val = toFloat(x->valor);

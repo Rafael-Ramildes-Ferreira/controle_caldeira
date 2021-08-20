@@ -33,6 +33,24 @@ struct referencia
 };
 
 
+/*  Set points  *//*
+struct referencia Tref = {30, INSTRUMENTACAO_MUTEX_INITIALIZER};
+struct referencia Href = {1.5,INSTRUMENTACAO_MUTEX_INITIALIZER};*/
+
+/*  inicializa_atuadores  *//*
+struct atuador Q  = {"aq-",1000000,0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Ni = {"ani",100,	   0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Nf = {"anf",100,    0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};
+struct atuador Na = {"ana",10,     0,INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"};*/
+
+/*  inicializa_sensores  *//*
+struct sensor T  = {"st-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor H  = {"sh-0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor No = {"sno0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor Ta = {"sta0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; 
+struct sensor Ti = {"sti0",INSTRUMENTACAO_MUTEX_INITIALIZER,"0000"}; */
+
+
 double le_sensor(struct sensor *x);
 
 void aciona_atuador(struct atuador *x,double valor);

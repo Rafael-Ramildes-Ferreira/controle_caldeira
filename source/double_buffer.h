@@ -19,6 +19,6 @@ void escreve_buffer(double valor);
 
 void libera_buffer();
 
-double * acessa_buffer();
+double * acessa_buffer(int* ultimo_buffer_lido);
 
 #endif

@@ -33,19 +33,19 @@ void libera_buffer()
 	dbuffer_cond_signal(&buf_cheio);	// Sinaliza que o buffer está cheio
 }
 
-double * acessa_buffer()
+double * acessa_buffer(int* ultimo_buffer_lido)
 {
 	double *data;
 
 	dbuffer_mutex_lock(&buf_mutex);
 
 	// Libera o mutex e espera que a variável ler seja != -1
-	while(ler==-1)
+	while(ler==-1 || ler==*ultimo_buffer_lido)
 		dbuffer_cond_wait(&buf_cheio,&buf_mutex);
 
 	data = buffer[ler];
 
-	ler = -1;
+	*ultimo_buffer_lido = ler;
 
 	dbuffer_mutex_unlock(&buf_mutex);
 
