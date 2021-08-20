@@ -7,7 +7,7 @@
 #include "instrumentacao.h"
 #include "double_buffer.h"
 #include "display.h"
-#define  DECLARE_VARS
+#define  DEFINE_VARS	// Deve-se definir as variáveis, não apenas declarar
 #include "vars.h"
 
 #define TEMPO_TOTAL 10
