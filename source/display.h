@@ -7,7 +7,7 @@
 
 void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int tempo);
 
-void inicializa_interface(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2);
+void inicializa_interface();//struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2);
 
 void print_warning(int valor);
 

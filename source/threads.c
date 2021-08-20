@@ -42,7 +42,7 @@ void imprime_dados()
 	sensoores_para_impressao[1] = &H;
 
 	/*  Imprime no terminal  */
-	inicializa_interface(atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores);
+	inicializa_interface();//atuadores_para_impressao,n_atuadores,sensoores_para_impressao,n_sensores);
 	
 	/*  Prepara o Timer  */
 	clock_gettime(CLOCK_MONOTONIC,&time);
@@ -228,5 +228,5 @@ void controla_nivel()
 		       time.tv_sec++;
 		}
 	}
-	
 }
+
