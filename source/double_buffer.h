@@ -8,6 +8,7 @@
 
 #define DBUFFER_MUTEX_INITIALIZER	PTHREAD_MUTEX_INITIALIZER
 #define DBUFFER_COND_INITIALIZER	PTHREAD_COND_INITIALIZER
+#define dbuffer_mutex_trylock(mutex)	pthread_mutex_trylock(mutex)
 #define dbuffer_mutex_lock(mutex)	pthread_mutex_lock(mutex)
 #define dbuffer_mutex_unlock(mutex)	pthread_mutex_unlock(mutex)
 #define dbuffer_cond_signal(cond)	pthread_cond_signal(cond)
@@ -15,7 +16,7 @@
 #define dbuffer_mutex_t			pthread_mutex_t
 #define dbuffer_cond_t			pthread_cond_t
 
-void escreve_buffer(double valor);
+int escreve_buffer(double valor);
 
 void libera_buffer();
 

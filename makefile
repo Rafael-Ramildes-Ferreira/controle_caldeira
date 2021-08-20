@@ -2,8 +2,8 @@
 
 nome = controladora
 
-C_SOURCE = $(wildcard ./source/*.c)
-H_SOURCE = $(wildcard ./source/*.h)
+C_SOURCE = $(wildcard source/*.c)
+H_SOURCE = $(wildcard source/*.h)
 OBJ  = $(subst source,obj,$(C_SOURCE:.c=.o))
 
 H_TEST = $(subst source,source/test,$(H_SOURCE:.h=.o))
@@ -24,7 +24,7 @@ $(nome): $(OBJ)
 	$(CC) -o $@ $< -c
 
 ./obj/main.o: ./source/main.c $(H_SOURCE) 
-	$(CC) -o ./obj/main.o ./source/main.c -c
+	$(CC) -o obj/main.o source/main.c -c
 
 
 #- Testa se os headers compilariam -#

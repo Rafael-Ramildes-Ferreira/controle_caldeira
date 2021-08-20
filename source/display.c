@@ -16,32 +16,45 @@
 instrumentacao_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
 
 int finalizar = false;
-int dentro_warning = false;
-int dentro_atualiza = false;
 
 /*-----------  Funções de impressão de saída  ----------*/
-void atualiza_valores_da_tela(struct atuador *lista1[],int lenght1,struct sensor *lista2[],int lenght2,int tempo)
+void atualiza_valores_da_tela(int tempo)
 {
 	instrumentacao_mutex_lock(&mutex_scr);	
 	printf("%s", ESC "[?25l");			// Cursor invisível
 
 	/*  Atualiza atuadores  */
 	printf("%s", ESC "[8A"); 			// Sobe 8 linhas
-	for(int i = 0;i < lenght1;i++){
-		printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
-		if(!finalizar)
-			printf("%09.6f", le_atuador(lista1[i]));	// Extrai e escreve o valor
-		printf("\n");						// Passa pra próxima linha
-	}
+
+	printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
+	if(!finalizar)
+		printf("%09.6f", le_atuador(&Q));	// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
+	printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
+	if(!finalizar)
+		printf("%09.6f", le_atuador(&Ni));	// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
+	printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
+	if(!finalizar)
+		printf("%09.6f", le_atuador(&Na));	// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
+	printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
+	if(!finalizar)
+		printf("%09.6f", le_atuador(&Nf));	// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
+	//}
 
 	/*  Atualiza sensores  */
 	printf("%s", ESC "[4A");			// Sobe 4 linhas
-	for(int i = 0;i < lenght2;i++){
-		printf("%s", ESC "[28G");		// Anda 30 colunas para direita
-		if(!finalizar)
-			printf("%09.6f",le_sensor(lista2[i]));	// Extrai e escreve o valor
-		printf("\n");				// Passa pra próxima linha
-	}
+
+	printf("%s", ESC "[28G");			// Anda 30 colunas para direita
+	if(!finalizar)
+		printf("%09.6f",le_sensor(&T));		// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
+	printf("%s", ESC "[28G");			// Anda 30 colunas para direita
+	if(!finalizar)
+		printf("%09.6f",le_sensor(&H));		// Extrai e escreve o valor
+	printf("\n");					// Passa pra próxima linha
 	printf("\n\n\n");
 
 	/*  Atualiza tempo  */
@@ -68,8 +81,8 @@ void inicializa_interface()
 
 	printf("%s", ESC "[4A");	// Sobe 4 linhas
 
-	printf("%sT = \n", ESC "[23G");
-	printf("%sH = \n", ESC "[23G");
+	printf("%sT = \n", ESC "[24G");
+	printf("%sH = \n", ESC "[24G");
 	printf("\n\n");
 	printf("--------------------------------------\n");
 
@@ -90,7 +103,7 @@ void print_warning(int valor)
 	printf("%s", ESC "[1m");	// Põe em negrito
 	printf("%s", ESC "[38;5;196m");	// Põe em vermelho
 	if(!finalizar){
-		printf("%s", ESC "[K");		// Limpa a linha
+		printf("%s", ESC "[K");	// Limpa a linha
 		printf("#### WARNING: Temperatura Acima Do Limite Seguro: %d C. !!!!!!",valor);
 	}
 	printf("%s", ESC "[0m");	// Reseta estilo da escrita
@@ -124,7 +137,7 @@ void finalizar_programa()
 
 
 /*---------- Função de interpretação de entrada ----------*/
-void interpreta_escrita(struct referencia *v[])
+void interpreta_escrita()
 {
 	static int index;
 	static double val;
@@ -145,74 +158,73 @@ void interpreta_escrita(struct referencia *v[])
 
 	void limpa_linha_comando()
 	{
+		instrumentacao_mutex_lock(&mutex_scr);
 		if(!finalizar){
-			instrumentacao_mutex_lock(&mutex_scr);
 			printf("%s", ESC "[4G");		// Move o cursor para coluna 4
 			printf("%s", ESC "[0K");		// apaga dala pra frente
-			instrumentacao_mutex_unlock(&mutex_scr);
-
-			escolhe_desativa_variavel(-1);	//  Reseta completamente
 		}
+		instrumentacao_mutex_unlock(&mutex_scr);
+
+		escolhe_desativa_variavel(-1);	//  Reseta completamente		
 	}
 
 	void backspace()
 	{
-		if(!finalizar){
-			index -= 1;
+		index -= 1;
 
-			instrumentacao_mutex_lock(&mutex_scr);
+		instrumentacao_mutex_lock(&mutex_scr);
+		if(!finalizar){
 			printf("%s[%dG", ESC, 6 + index);	// Move o cursor para trás
 			printf("%s", ESC "[0K");		// apaga dala pra frente
-			instrumentacao_mutex_unlock(&mutex_scr);
 		}
+		instrumentacao_mutex_unlock(&mutex_scr);
 	}
 
 	void comando_invalido()
 	{
-		if(!finalizar){
-			instrumentacao_mutex_lock(&mutex_scr);
-			printf("%s", ESC "[4G");
-			printf("%s", ESC "[?25l");	// Cursor invisível
-			printf("%s", ESC "[38;5;196m");	// Põe em vermelho
+		instrumentacao_mutex_lock(&mutex_scr);
+		printf("%s", ESC "[4G");
+		printf("%s", ESC "[?25l");	// Cursor invisível
+		printf("%s", ESC "[38;5;196m");	// Põe em vermelho
+		if(!finalizar)
 			printf("Comando invalido!!");
-			printf("%s", ESC "[0m");	// Reseta estilo da escrita
-			printf("%s", ESC "[?25h");	// Cursor visível
-			instrumentacao_mutex_unlock(&mutex_scr);
-		}
+		printf("%s", ESC "[0m");	// Reseta estilo da escrita
+		printf("%s", ESC "[?25h");	// Cursor visível
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		delay(1500);
 
+		instrumentacao_mutex_lock(&mutex_scr);
 		if(!finalizar){
-			instrumentacao_mutex_lock(&mutex_scr);
 			printf("%s", ESC "[0G");	// Vai para coluna 0
 			printf("%s", ESC "[0K");	// Limpa a linha
-			printf("==>");			
-			instrumentacao_mutex_unlock(&mutex_scr);
+			printf("==>");
 		}
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		escolhe_desativa_variavel(-1);	//  Reseta completamente
 	}
 
 	void interpreta_texto(char input)
 	{
+		instrumentacao_mutex_lock(&mutex_scr);
 		if(!finalizar){
-			instrumentacao_mutex_lock(&mutex_scr);
 			printf("%s", ESC "[4G");	// Vai para coluna 4
 			printf("%s", ESC "[0K");	// Limpa a linha
 			printf("%c", input);
-			instrumentacao_mutex_unlock(&mutex_scr);
 		}
+		instrumentacao_mutex_unlock(&mutex_scr);
 	}
 
 	double interpreta_numero(char input)
 	{
+		instrumentacao_mutex_lock(&mutex_scr);
 		if(!finalizar){
-			instrumentacao_mutex_lock(&mutex_scr);
 			printf("%s[%dG", ESC, 6 + index);	// Vai para coluna 4
 			printf("%s", ESC "[0K");		// Limpa a linha dali pra frente
 			printf("%c", input);
-			instrumentacao_mutex_unlock(&mutex_scr);
 		}
+		instrumentacao_mutex_unlock(&mutex_scr);
 
 		index++;
 		
@@ -314,7 +326,10 @@ void interpreta_escrita(struct referencia *v[])
 					// O índice do ponto só vale se for positivo
 					index_ponto = (index_ponto>=0)?index_ponto:index;
 					val *= pow(10,index_ponto-index);
-					define_referencia(v[var],val);
+					if(var)
+						define_referencia(&Href,val);
+					else define_referencia(&Tref,val);
+					//define_referencia(v[var],val);
 
 					limpa_linha_comando();		//  Limpa a tela
 
