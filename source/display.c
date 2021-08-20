@@ -17,6 +17,8 @@ instrumentacao_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
 
 int finalizar = false;
 
+
+
 /*-----------  Funções de impressão de saída  ----------*/
 void atualiza_valores_da_tela(int tempo)
 {
@@ -42,7 +44,6 @@ void atualiza_valores_da_tela(int tempo)
 	if(!finalizar)
 		printf("%09.6f", le_atuador(&Nf));	// Extrai e escreve o valor
 	printf("\n");					// Passa pra próxima linha
-	//}
 
 	/*  Atualiza sensores  */
 	printf("%s", ESC "[4A");			// Sobe 4 linhas
@@ -70,7 +71,7 @@ void atualiza_valores_da_tela(int tempo)
 void inicializa_interface()
 {
 	instrumentacao_mutex_lock(&mutex_scr);	
-	printf("%s", ESC "[?25l");	// Cursor invisível
+	printf("%s", ESC "[?25l");		// Cursor invisível
 	printf("\n");
 
 	printf("--------------------------------------\n");
@@ -79,10 +80,10 @@ void inicializa_interface()
 	printf(" Na = \n");
 	printf(" Nf = \n");
 
-	printf("%s", ESC "[4A");	// Sobe 4 linhas
+	printf("%s", ESC "[4A");		// Sobe 4 linhas
 
-	printf("%sT = \n", ESC "[24G");
-	printf("%sH = \n", ESC "[24G");
+	printf("%sT = \n", ESC "[24G");		// Vai pra coluna 24
+	printf("%sH = \n", ESC "[24G");		// Vai pra coluna 24
 	printf("\n\n");
 	printf("--------------------------------------\n");
 
@@ -90,39 +91,41 @@ void inicializa_interface()
 
 	printf("Escreva T 123.45 ou H 123.45 para redefinir o set-point\nde T ou H para 123.45 ou qualquer outro valor\n");
 	printf("==>");
-	printf("%s", ESC "[?25h");	// Cursor visível
+	printf("%s", ESC "[?25h");		// Cursor visível
 	instrumentacao_mutex_unlock(&mutex_scr);	
 }
+
 
 /*---------- Funções de alarme ----------*/
 void print_warning(int valor)
 {
 	instrumentacao_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[?25l");	// Cursor invisível
-	printf("%s", ESC "[10A");	// Sobe 10 linhas
-	printf("%s", ESC "[1m");	// Põe em negrito
-	printf("%s", ESC "[38;5;196m");	// Põe em vermelho
+	printf("%s", ESC "[?25l");		// Cursor invisível
+	printf("%s", ESC "[10A");		// Sobe 10 linhas
+	printf("%s", ESC "[1m");		// Põe em negrito
+	printf("%s", ESC "[38;5;196m");		// Põe em vermelho
 	if(!finalizar){
-		printf("%s", ESC "[K");	// Limpa a linha
+		printf("%s", ESC "[K");		// Limpa a linha
 		printf("#### WARNING: Temperatura Acima Do Limite Seguro: %d C. !!!!!!",valor);
 	}
-	printf("%s", ESC "[0m");	// Reseta estilo da escrita
-	printf("\n\n\n\n\n\n\n\n\n\n");	// Desce todas as 10 linhas
-	printf("%s", ESC "[?25h");	// Cursor visível
+	printf("%s", ESC "[0m");		// Reseta estilo da escrita
+	printf("\n\n\n\n\n\n\n\n\n\n");		// Desce todas as 10 linhas
+	printf("%s", ESC "[?25h");		// Cursor visível
 	instrumentacao_mutex_unlock(&mutex_scr);
 }
 
 void dont_print_warning()
 {
 	instrumentacao_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[?25l");	// Cursor invisível
-	printf("%s", ESC "[10A");	// Sobe 10 linhas
+	printf("%s", ESC "[?25l");		// Cursor invisível
+	printf("%s", ESC "[10A");		// Sobe 10 linhas
 	if(!finalizar)
-		printf("%s", ESC "[K");	// Limpa a linha
-	printf("\n\n\n\n\n\n\n\n\n\n");	// Desce todas as 10 linhas
-	printf("%s", ESC "[?25h");	// Cursor visível
+		printf("%s", ESC "[K");		// Limpa a linha
+	printf("\n\n\n\n\n\n\n\n\n\n");		// Desce todas as 10 linhas
+	printf("%s", ESC "[?25h");		// Cursor visível
 	instrumentacao_mutex_unlock(&mutex_scr);
 }
+
 
 /*---------- Finalização do programa ----------*/
 void finalizar_programa()
@@ -183,13 +186,13 @@ void interpreta_escrita()
 	void comando_invalido()
 	{
 		instrumentacao_mutex_lock(&mutex_scr);
-		printf("%s", ESC "[4G");
-		printf("%s", ESC "[?25l");	// Cursor invisível
-		printf("%s", ESC "[38;5;196m");	// Põe em vermelho
+		printf("%s", ESC "[4G");		// Vai pra coluna 4
+		printf("%s", ESC "[?25l");		// Cursor invisível
+		printf("%s", ESC "[38;5;196m");		// Põe em vermelho
 		if(!finalizar)
 			printf("Comando invalido!!");
-		printf("%s", ESC "[0m");	// Reseta estilo da escrita
-		printf("%s", ESC "[?25h");	// Cursor visível
+		printf("%s", ESC "[0m");		// Reseta estilo da escrita
+		printf("%s", ESC "[?25h");		// Cursor visível
 		instrumentacao_mutex_unlock(&mutex_scr);
 
 		delay(1500);
@@ -202,7 +205,7 @@ void interpreta_escrita()
 		}
 		instrumentacao_mutex_unlock(&mutex_scr);
 
-		escolhe_desativa_variavel(-1);	//  Reseta completamente
+		escolhe_desativa_variavel(-1);		//  Reseta completamente
 	}
 
 	void interpreta_texto(char input)
@@ -329,7 +332,6 @@ void interpreta_escrita()
 					if(var)
 						define_referencia(&Href,val);
 					else define_referencia(&Tref,val);
-					//define_referencia(v[var],val);
 
 					limpa_linha_comando();		//  Limpa a tela
 
