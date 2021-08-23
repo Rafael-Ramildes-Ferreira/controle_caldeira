@@ -19,10 +19,13 @@ all: $(nome)
 $(nome): $(OBJ)
 	$(CC) -o $(nome) $(OBJ) $(flags)
 
-./obj/%.o: ./source/%.c $(H_SOURCE)
+./obj/%.o: ./source/%.c $(H_SOURCE) ./obj
 	$(CC) -o $@ $< -c
 
-./obj/main.o: ./source/main.c $(H_SOURCE) 
+./obj:
+	mkdir obj
+
+./obj/main.o: ./source/main.c $(H_SOURCE)  ./obj
 	$(CC) -o obj/main.o source/main.c -c
 
 
