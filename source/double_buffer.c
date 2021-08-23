@@ -1,8 +1,6 @@
 //####################  Implementação do buffer duplo  ####################//
 #include "double_buffer.h"
 
-#include <errno.h>
-
 #define TAMBUF 100
 
 double buffer[2][TAMBUF];
@@ -12,6 +10,8 @@ int ler =-1;
 
 dbuffer_mutex_t buf_mutex = DBUFFER_MUTEX_INITIALIZER;
 dbuffer_cond_t  buf_cheio = DBUFFER_COND_INITIALIZER;
+
+int is_mutex_required = 1;	// A função libera_buffer pode ser chamada de fora do escreve buffer, ai requer mutex
 
 int escreve_buffer(double valor)
 {
@@ -24,7 +24,9 @@ int escreve_buffer(double valor)
 
 	// Verifica se o buffer ficou cheio
 	if(indice==TAMBUF){
+		is_mutex_required = 0;
 		libera_buffer();
+		is_mutex_required = 1;
 		buffer_completo = 1;
 	}
 
@@ -35,9 +37,8 @@ int escreve_buffer(double valor)
 
 void libera_buffer()
 {
-	int is_mutex_required = 1;	// A função pode ser chamada de fora do escreve buffer, ai requer mutex
-	if(dbuffer_mutex_trylock(&buf_mutex)==EBUSY)
-		is_mutex_required = 0;
+	if(is_mutex_required)
+		 dbuffer_mutex_lock(&buf_mutex);
 
 	ler = escrever;	// Informa que aleitura deve ser feita nesse buffer que estava sendo escrito
 	indice = 0;	// E põe o índice da escrita no início

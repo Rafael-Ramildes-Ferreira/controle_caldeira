@@ -10,7 +10,7 @@
 #define  DEFINE_VARS	// Deve-se definir as variáveis, não apenas declarar
 #include "vars.h"
 
-#define TEMPO_TOTAL 5//3600
+#define TEMPO_TOTAL 3600
 
 // Executa por uma hora (3600 s) então o loop ocorre 3600s/intervalo em segundos (espera intervalo em nano)
 #define executa_nano(intervalo) for(int index = 0;index<TEMPO_TOTAL/(intervalo*1e-9);index++)
