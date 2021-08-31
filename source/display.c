@@ -16,7 +16,8 @@
 instrumentacao_mutex_t mutex_scr = INSTRUMENTACAO_MUTEX_INITIALIZER;
 
 int finalizar = false;
-
+int warning = false;
+int limite = 0.0;
 
 
 /*-----------  Funções de impressão de saída  ----------*/
@@ -26,7 +27,18 @@ void atualiza_valores_da_tela(int tempo)
 	printf("%s", ESC "[?25l");			// Cursor invisível
 
 	/*  Atualiza atuadores  */
-	printf("%s", ESC "[8A"); 			// Sobe 8 linhas
+	//printf("%s", ESC "[8A"); 			// Sobe 8 linhas
+	printf("%s", ESC "[10A");		// Sobe 10 linhas
+
+	printf("%s", ESC "[1m");		// Põe em negrito
+	printf("%s", ESC "[38;5;196m");		// Põe em vermelho
+	if(!finalizar){
+		printf("%s%s",ESC "[0G", ESC "[K");		// Limpa a linha
+		if(warning)
+			printf("#### WARNING: Temperatura Acima Do Limite Seguro: %d C. !!!!!!",limite);
+	}
+	printf("%s", ESC "[0m");		// Reseta estilo da escrita
+	printf("\n\n");
 
 	printf("%s", ESC "[7G"); 			// Anda 7 colunas para direita
 	if(!finalizar)
@@ -99,31 +111,13 @@ void inicializa_interface()
 /*---------- Funções de alarme ----------*/
 void print_warning(int valor)
 {
-	instrumentacao_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[?25l");		// Cursor invisível
-	printf("%s", ESC "[10A");		// Sobe 10 linhas
-	printf("%s", ESC "[1m");		// Põe em negrito
-	printf("%s", ESC "[38;5;196m");		// Põe em vermelho
-	if(!finalizar){
-		printf("%s", ESC "[K");		// Limpa a linha
-		printf("#### WARNING: Temperatura Acima Do Limite Seguro: %d C. !!!!!!",valor);
-	}
-	printf("%s", ESC "[0m");		// Reseta estilo da escrita
-	printf("\n\n\n\n\n\n\n\n\n\n");		// Desce todas as 10 linhas
-	printf("%s", ESC "[?25h");		// Cursor visível
-	instrumentacao_mutex_unlock(&mutex_scr);
+	warning = true;
+	limite = valor;
 }
 
 void dont_print_warning()
 {
-	instrumentacao_mutex_lock(&mutex_scr);
-	printf("%s", ESC "[?25l");		// Cursor invisível
-	printf("%s", ESC "[10A");		// Sobe 10 linhas
-	if(!finalizar)
-		printf("%s", ESC "[K");		// Limpa a linha
-	printf("\n\n\n\n\n\n\n\n\n\n");		// Desce todas as 10 linhas
-	printf("%s", ESC "[?25h");		// Cursor visível
-	instrumentacao_mutex_unlock(&mutex_scr);
+	warning = false;
 }
 
 
